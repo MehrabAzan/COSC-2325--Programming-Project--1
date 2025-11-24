@@ -30,6 +30,57 @@ main:
     li $t2, 0
     # tracks successive powers of the base
     li $t3, 1
+    # push return address on stack
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
+    # push number on stack
+    addi $sp, $sp, -4
+    sw   $t0, 0($sp)
+    # push base on stack
+    addi $sp, $sp, -4
+    sw   $t1, 0($sp)
+    # push result on stack
+    addi $sp, $sp, -4
+    sw   $t2, 0($sp)
+    # push power on stack
+    addi $sp, $sp, -4
+    sw   $t3, 0($sp)
+    # jump to function
+    jal Function
+    # pop power from stack
+    lw   $t3, 0($sp)
+    addi $sp, $sp, 4
+    # pop result from stack
+    lw   $t2, 0($sp)
+    addi $sp, $sp, 4
+    # pop base from stack
+    lw   $t1, 0($sp)
+    addi $sp, $sp, 4
+    # pop number from stack
+    lw   $t0, 0($sp)
+    addi $sp, $sp, 4
+    # pop return address from stack
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    # print result message
+    li   $v0, 4
+    la   $a0, result_msg
+    syscall
+    # print value in $t2
+    li   $v0, 1
+    move $a0, $t2
+    syscall
+    # exit
+    li   $v0, 10
+    syscall
+    # start of function
+    Function:
+    # load number into $t0
+    lw   $t0, 12($sp)
+    # load base into $t1
+    lw   $t1, 8($sp)
+    # load power into $t3
+    lw   $t3, 0($sp)
     # validate base input
     blt $t1, 2, Error
     bgt $t1, 10, Error
@@ -49,14 +100,6 @@ main:
     divu $t0, $t0, 10
     j Loop
     After:
-    # print result message
-    li   $v0, 4
-    la   $a0, result_msg
-    syscall
-    # print value in $t2
-    li   $v0, 1
-    move $a0, $t2
-    syscall
-    # exit
-    li   $v0, 10
-    syscall
+    # return from function
+    sw  $t2, 4($sp)
+    jr $ra
